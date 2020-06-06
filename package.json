@@ -1,0 +1,21 @@
+{
+  "name": "koa-gcp-iap",
+  "version": "1.0.0",
+  "description": "A koa middleware to verify requests with the GCP Identity-Aware Proxy",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "author": "saka1",
+  "license": "MIT",
+  "devDependencies": {
+    "eslint": "^7.2.0",
+    "eslint-config-prettier": "^6.11.0",
+    "eslint-plugin-jest": "^23.13.2",
+    "jest": "^26.0.1",
+    "prettier": "2.0.5"
+  },
+  "dependencies": {
+    "google-auth-library": "^6.0.1"
+  }
+}
