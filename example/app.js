@@ -1,3 +1,5 @@
+"use strict";
+
 const iap = require("../");
 
 const Koa = require("koa");
@@ -12,7 +14,7 @@ app.use(
 );
 
 app.use(async (ctx) => {
-  ctx.body = "Hello World";
+  ctx.body = `Hello World: ${ctx.iapPayload}`;
 });
 
 app.listen(3000);

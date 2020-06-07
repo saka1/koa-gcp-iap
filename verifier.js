@@ -31,18 +31,25 @@ class Verifier {
       debug(`auth failed(iapJwt is invalid: '${iapJwt}')`);
       throw new Error("iapJwt must be string");
     }
-    // Verify the id_token, and access the claims.
-    const response = await this.oAuth2Client.getIapPublicKeys();
-    debug("get iap public keys");
-    const ticket = await this.oAuth2Client.verifySignedJwtWithCertsAsync(
-      iapJwt,
-      response.pubkeys,
-      this.expectedAudience,
-      ["https://cloud.google.com/iap"],
-      this.maxExpiry
-    );
-    debug("auth success!");
-    return ticket;
+    try {
+      // Verify the id_token, and access the claims.
+      debug("start getIapPublicKeys()");
+      const response = await this.oAuth2Client.getIapPublicKeys();
+      debug("end getIapPublicKeys()");
+      const ticket = await this.oAuth2Client.verifySignedJwtWithCertsAsync(
+        iapJwt,
+        response.pubkeys,
+        this.expectedAudience,
+        ["https://cloud.google.com/iap"],
+        this.maxExpiry
+      );
+      debug("auth success!");
+      debug(`ticket: ${ticket}`);
+      return ticket;
+    } catch (e) {
+      debug(e);
+      throw e;
+    }
   }
 }
 
