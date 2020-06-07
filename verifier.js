@@ -16,6 +16,9 @@ class Verifier {
       throw new Error("invalid argument");
     }
     this.oAuth2Client = new OAuth2Client();
+    // Define maxExpiry for testing/debugging.
+    // Normally, should not set any value in production.
+    this.maxExpiry = undefined;
     debug("initialized successfully");
   }
 
@@ -35,7 +38,8 @@ class Verifier {
       iapJwt,
       response.pubkeys,
       this.expectedAudience,
-      ["https://cloud.google.com/iap"]
+      ["https://cloud.google.com/iap"],
+      this.maxExpiry
     );
     debug("auth success!");
     return ticket;
