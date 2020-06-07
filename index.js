@@ -1,14 +1,13 @@
 "use strict";
 
-const verifier = require("./verifier");
+const Verifier = require("./verifier");
 
-module.exports = () => {
-  //TODO pass opts
+module.exports = (opts) => {
+  const verifier = new Verifier(opts)
   return async (ctx, next) => {
     const iapJwt = ctx.headers["x-goog-iap-jwt-assertion"];
     try {
-      //TODO replace
-      await verifier(iapJwt, "projectNumber", "projectId", "backendServiceId");
+      await verifier.verify(iapJwt);
     } catch (err) {
       ctx.throw(401);
     }

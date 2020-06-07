@@ -1,10 +1,15 @@
-
-const iap = require('../');
+const iap = require("../");
 
 const Koa = require("koa");
 const app = new Koa();
 
-app.use(iap());
+app.use(
+  iap({
+    projectNumber: "123456789",
+    projectId: "dummyProjectId",
+    backendServiceId: "dummyBackendServiceId",
+  })
+);
 
 app.use(async (ctx) => {
   ctx.body = "Hello World";
