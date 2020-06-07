@@ -1,20 +1,22 @@
 "use strict";
 
 const { OAuth2Client } = require("google-auth-library");
+const debug = require("debug")("koa-gcp-iap:verifier");
 
 class Verifier {
   constructor({ projectNumber, projectId, backendServiceId }) {
-    if (
-      [projectNumber, projectId, backendServiceId].some(
-        (x) => typeof x !== "string"
-      )
-    ) {
-      throw new Error("All arguments must be string");
+    this.expectedAudience = null;
+    if (projectNumber && projectId) {
+      // Expected Audience for App Engine.
+      this.expectedAudience = `/projects/${projectNumber}/apps/${projectId}`;
+    } else if (projectNumber && backendServiceId) {
+      // Expected Audience for Compute Engine
+      this.expectedAudience = `/projects/${projectNumber}/global/backendServices/${backendServiceId}`;
+    } else {
+      throw new Error("invalid argument");
     }
     this.oAuth2Client = new OAuth2Client();
-    this.projectNumber = projectNumber;
-    this.projectId = projectNumber;
-    this.backendServiceId = backendServiceId;
+    debug("initialized successfully");
   }
 
   /**
@@ -23,25 +25,19 @@ class Verifier {
    */
   async verify(iapJwt) {
     if (typeof iapJwt !== "string") {
+      debug(`auth failed(iapJwt is invalid: '${iapJwt}')`);
       throw new Error("iapJwt must be string");
-    }
-
-    let expectedAudience = null;
-    if (this.projectNumber && this.projectId) {
-      // Expected Audience for App Engine.
-      expectedAudience = `/projects/${this.projectNumber}/apps/${this.projectId}`;
-    } else if (this.projectNumber && this.backendServiceId) {
-      // Expected Audience for Compute Engine
-      expectedAudience = `/projects/${this.projectNumber}/global/backendServices/${this.backendServiceId}`;
     }
     // Verify the id_token, and access the claims.
     const response = await this.oAuth2Client.getIapPublicKeys();
+    debug("get iap public keys");
     const ticket = await this.oAuth2Client.verifySignedJwtWithCertsAsync(
       iapJwt,
       response.pubkeys,
-      expectedAudience,
+      this.expectedAudience,
       ["https://cloud.google.com/iap"]
     );
+    debug("auth success!");
     return ticket;
   }
 }

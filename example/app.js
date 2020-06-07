@@ -6,7 +6,7 @@ const app = new Koa();
 app.use(
   iap({
     projectNumber: "123456789",
-    projectId: "dummyProjectId",
+    // projectId: "dummyProjectId",
     backendServiceId: "dummyBackendServiceId",
   })
 );
