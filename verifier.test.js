@@ -55,8 +55,8 @@ it("should verity the input", async () => {
   v.oAuth2Client.getIapPublicKeys = () => {
     return { pubkeys: { xxx: pubKey } };
   };
-  // Set the very large value to bypass the validation of `exp`.
-  // Not a good way, but I don't know the other one.
+  // Set the very large value to bypass the validation of `exp`. Not a good way.
+  // TODO: Create JWT at runtime to remove this hack.
   v.maxExpiry = 31536000000;
 
   // console.log(await v.oAuth2Client.getIapPublicKeys());
