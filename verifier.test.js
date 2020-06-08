@@ -45,7 +45,7 @@ MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAErGrekYU4J4ypoIBSoEv4Ffhv9kXX
 -----END PUBLIC KEY-----
 `;
 
-function createTestJwt() {
+function createTestJwt(kid) {
   const payload = {
     aud: "/projects/PROJECT_NUMBER/apps/PROJECT_ID",
     email: "mail@example.com",
@@ -56,7 +56,7 @@ function createTestJwt() {
   };
   return jwt.sign(payload, privateKey, {
     algorithm: "ES256",
-    header: { kid: "xxx" },
+    header: { kid },
   });
 }
 
@@ -66,9 +66,9 @@ test("verify() should accept a valid token", async () => {
     projectId: "PROJECT_ID",
   });
   v.oAuth2Client.getIapPublicKeys = () => {
-    return { pubkeys: { xxx: pubKey } };
+    return { pubkeys: { abcdefg: pubKey } };
   };
-  const jwt = createTestJwt();
+  const jwt = createTestJwt("abcdefg");
   const ticket = await v.verify(jwt);
   const payload = ticket.payload;
   expect(payload.email).toBe("mail@example.com");
