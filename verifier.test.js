@@ -1,3 +1,6 @@
+"use strict";
+
+const jwt = require("jsonwebtoken");
 const Verifier = require("./verifier");
 
 describe("construction", () => {
@@ -30,37 +33,43 @@ describe("construction", () => {
 //
 // Sample private/public key for testing
 //
-/*
------BEGIN EC PRIVATE KEY-----
+const privateKey = `-----BEGIN EC PRIVATE KEY-----
 MHcCAQEEIOa4dp2bhYxYzNik+kynQRgLQU1eZIkQxic9fiLKsBh8oAoGCCqGSM49
 AwEHoUQDQgAErGrekYU4J4ypoIBSoEv4Ffhv9kXX/26RDEE6XbwfBykjX1wmGDpc
 eM3p0TsLmhOA8pY1UaxGNEmi5VybrwN8ew==
 -----END EC PRIVATE KEY-----
-*/
+`;
 const pubKey = `-----BEGIN PUBLIC KEY-----
 MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAErGrekYU4J4ypoIBSoEv4Ffhv9kXX
 /26RDEE6XbwfBykjX1wmGDpceM3p0TsLmhOA8pY1UaxGNEmi5VybrwN8ew==
 -----END PUBLIC KEY-----
 `;
 
-const sampleJwt =
-  "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6Inh4eCJ9.eyJhdWQiOiIvcHJvamVjdHMvUFJPSkVDVF9OVU1CRVIvYXBwcy9QUk9KRUNUX0lEIiwiZW1haWwiOiJtYWlsQGV4YW1wbGUuY29tIiwiZXhwIjozMjUwMzY4MDAwMCwiaWF0IjoxNTkxNTQzMTM5LCJpc3MiOiJodHRwczovL2Nsb3VkLmdvb2dsZS5jb20vaWFwIiwic3ViIjoiYWNjb3VudHMuZ29vZ2xlLmNvbTp4eHh4eHh4eHh4eHh4eHh4eHh4eCJ9.4BZBltGWdLhts-PvmvphM1ft4SnNO22n01nsw0jhS4vd97OThzEr9yKcm9sLww2u9Kx4jV1LEHAB4V6cL-cXiA";
+function createTestJwt() {
+  const payload = {
+    aud: "/projects/PROJECT_NUMBER/apps/PROJECT_ID",
+    email: "mail@example.com",
+    exp: Math.floor(Date.now() / 1000) + 30,
+    iat: Math.floor(Date.now() / 1000) - 30,
+    iss: "https://cloud.google.com/iap",
+    sub: "accounts.google.com:xxxxxxxxxxxxxxxxxxxx",
+  };
+  return jwt.sign(payload, privateKey, {
+    algorithm: "ES256",
+    header: { kid: "xxx" },
+  });
+}
 
-it("should verity the input", async () => {
+test("verify() should accept a valid token", async () => {
   const v = new Verifier({
     projectNumber: "PROJECT_NUMBER",
     projectId: "PROJECT_ID",
   });
-
   v.oAuth2Client.getIapPublicKeys = () => {
     return { pubkeys: { xxx: pubKey } };
   };
-  // Set the very large value to bypass the validation of `exp`. Not a good way.
-  // TODO: Create JWT at runtime to remove this hack.
-  v.maxExpiry = 31536000000;
-
-  // console.log(await v.oAuth2Client.getIapPublicKeys());
-  const ticket = await v.verify(sampleJwt);
+  const jwt = createTestJwt();
+  const ticket = await v.verify(jwt);
   const payload = ticket.payload;
   expect(payload.email).toBe("mail@example.com");
   expect(payload.sub).toBe("accounts.google.com:xxxxxxxxxxxxxxxxxxxx");
