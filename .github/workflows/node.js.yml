@@ -26,4 +26,5 @@ jobs:
         node-version: ${{ matrix.node-version }}
     - run: yarn
     - run: yarn -s eslint './**/*.js'
+    - run: yarn -s prettier --check './**/*.js'
     - run: yarn -s test
