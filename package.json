@@ -19,7 +19,7 @@
   },
   "dependencies": {
     "debug": "^4.1.1",
-    "google-auth-library": "^6.0.1"
+    "google-auth-library": "^8.0.3"
   },
   "keywords": [
     "koa",
